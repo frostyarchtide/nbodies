@@ -33,7 +33,7 @@ impl Screen {
         for _ in 0..(size.0 * size.1 * 2) {
             pixels.push(Color::Black);
         }
-        
+
         stdout.execute(terminal::EnterAlternateScreen)?;
         stdout.execute(terminal::Clear(terminal::ClearType::Purge))?;
 
@@ -59,8 +59,13 @@ impl Screen {
             for x in 0..self.resolution.x {
                 stdout
                     .queue(cursor::MoveTo(x as u16, y as u16))?
-                    .queue(style::SetForegroundColor(self.get_pixel(UVec2 { x, y: y * 2 })))?
-                    .queue(style::SetBackgroundColor(self.get_pixel(UVec2 { x, y: y * 2 + 1 })))?
+                    .queue(style::SetForegroundColor(
+                        self.get_pixel(IVec2::from(UVec2 { x, y: y * 2 })).unwrap(),
+                    ))?
+                    .queue(style::SetBackgroundColor(
+                        self.get_pixel(IVec2::from(UVec2 { x, y: y * 2 + 1 }))
+                            .unwrap(),
+                    ))?
                     .queue(style::Print('\u{2580}'))?;
             }
         }
@@ -71,15 +76,35 @@ impl Screen {
         Ok(())
     }
 
-    pub fn set_pixel(&mut self, position: UVec2, color: Color) {
-        if position.x > self.resolution.x || position.y > self.resolution.y {
+    pub fn get_resolution(&self) -> UVec2 {
+        self.resolution
+    }
+
+    pub fn set_pixel(&mut self, position: IVec2, color: Color) {
+        if position.x < 0
+            || position.y < 0
+            || position.x >= self.resolution.x as isize
+            || position.y >= self.resolution.y as isize
+        {
             return;
         }
+
+        let position = UVec2::from(position);
 
         self.pixels[position.y * self.resolution.x + position.x] = color;
     }
 
-    pub fn get_pixel(&self, position: UVec2) -> Color {
-        self.pixels[position.y * self.resolution.x + position.x]
+    pub fn get_pixel(&self, position: IVec2) -> Option<Color> {
+        if position.x < 0
+            || position.y < 0
+            || position.x >= self.resolution.x as isize
+            || position.y >= self.resolution.y as isize
+        {
+            return None;
+        }
+
+        let position = UVec2::from(position);
+
+        Some(self.pixels[position.y * self.resolution.x + position.x])
     }
 }
