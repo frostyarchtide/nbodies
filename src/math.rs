@@ -6,6 +6,15 @@ pub struct Vec2 {
     pub y: f64,
 }
 
+impl From<IVec2> for Vec2 {
+    fn from(value: IVec2) -> Self {
+        Self {
+            x: value.x as f64,
+            y: value.y as f64,
+        }
+    }
+}
+
 impl Add for Vec2 {
     type Output = Self;
 
@@ -94,6 +103,17 @@ impl From<UVec2> for IVec2 {
         Self {
             x: value.x.try_into().unwrap(),
             y: value.y.try_into().unwrap(),
+        }
+    }
+}
+
+impl Add for IVec2 {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
         }
     }
 }

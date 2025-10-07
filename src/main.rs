@@ -2,7 +2,10 @@ mod math;
 mod screen;
 mod universe;
 
-use crossterm::{event::{poll, Event, read, KeyCode}, style::Color};
+use crossterm::{
+    event::{Event, KeyCode, poll, read},
+    style::Color,
+};
 use math::*;
 use rand::Rng;
 use screen::*;
@@ -23,7 +26,7 @@ fn main() -> io::Result<()> {
 
     let mut rng = rand::rng();
 
-    for _ in 0..20 {
+    for _ in 0..100 {
         let pos_x = rng.random_range(-50.0..50.0);
         let pos_y = rng.random_range(-50.0..50.0);
 
@@ -32,10 +35,7 @@ fn main() -> io::Result<()> {
                 x: center.x - pos_x,
                 y: center.y - pos_y,
             },
-            velocity: Vec2 {
-                x: 0.,
-                y: 0.,
-            },
+            velocity: Vec2 { x: 0., y: 0. },
         });
     }
 
@@ -48,7 +48,7 @@ fn main() -> io::Result<()> {
                     if key.code == KeyCode::Char('q') {
                         should_exit = true;
                     }
-                },
+                }
                 _ => (),
             }
         }
@@ -61,6 +61,7 @@ fn main() -> io::Result<()> {
                 x: body.position.x as isize,
                 y: body.position.y as isize,
             };
+
             screen.set_pixel(position, Color::Red);
         }
 

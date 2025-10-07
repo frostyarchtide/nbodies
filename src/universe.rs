@@ -1,6 +1,6 @@
-use crate::{math::*, TICK_TIME};
+use crate::{TICK_TIME, math::*};
 
-const G: f64 = 10_000.;
+const G: f64 = 1_000.;
 const SMOOTHING: f64 = 1.;
 
 pub struct Body {
