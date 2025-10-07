@@ -2,14 +2,14 @@ mod math;
 mod screen;
 mod universe;
 
-use crossterm::style::Color;
+use crossterm::{event::{poll, Event, read, KeyCode}, style::Color};
 use math::*;
 use rand::Rng;
 use screen::*;
 use std::{io, thread::sleep, time::Duration};
 use universe::*;
 
-pub const TICK_TIME: f64 = 1. / 30.;
+pub const TICK_TIME: f64 = 1. / 60.;
 
 fn main() -> io::Result<()> {
     let mut screen = Screen::new()?;
@@ -23,7 +23,7 @@ fn main() -> io::Result<()> {
 
     let mut rng = rand::rng();
 
-    for _ in 0..25 {
+    for _ in 0..20 {
         let pos_x = rng.random_range(-50.0..50.0);
         let pos_y = rng.random_range(-50.0..50.0);
 
@@ -39,8 +39,20 @@ fn main() -> io::Result<()> {
         });
     }
 
-    let should_exit = false;
+    let mut should_exit = false;
+
     while !should_exit {
+        if poll(Duration::ZERO)? {
+            match read()? {
+                Event::Key(key) => {
+                    if key.code == KeyCode::Char('q') {
+                        should_exit = true;
+                    }
+                },
+                _ => (),
+            }
+        }
+
         screen.clear();
         universe.update();
 

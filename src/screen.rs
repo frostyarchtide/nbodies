@@ -19,7 +19,9 @@ impl Drop for Screen {
     fn drop(&mut self) {
         let mut stdout = io::stdout();
 
+        stdout.execute(cursor::Show).unwrap();
         stdout.execute(terminal::LeaveAlternateScreen).unwrap();
+        terminal::disable_raw_mode().unwrap();
     }
 }
 
@@ -27,15 +29,17 @@ impl Screen {
     pub fn new() -> io::Result<Self> {
         let mut stdout = io::stdout();
 
+        terminal::enable_raw_mode()?;
+        stdout.execute(terminal::EnterAlternateScreen)?;
+        stdout.execute(cursor::Hide)?;
+        stdout.execute(terminal::Clear(terminal::ClearType::Purge))?;
+
         let size = terminal::size().unwrap();
         let mut pixels = Vec::with_capacity(size.0 as usize * size.1 as usize * 2);
 
         for _ in 0..(size.0 * size.1 * 2) {
             pixels.push(Color::Black);
         }
-
-        stdout.execute(terminal::EnterAlternateScreen)?;
-        stdout.execute(terminal::Clear(terminal::ClearType::Purge))?;
 
         Ok(Self {
             resolution: UVec2 {
